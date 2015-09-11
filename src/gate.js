@@ -90,7 +90,7 @@ Gate.prototype._listen = function () {
         client.sendResult(msgId, [self._packCallArguments(new Error('no available worker'))]);
         return;
       }
-      worker.send(CMD.CALL_SERVICE, null, [name, args], function (msgId, list) {
+      worker.send(CMD.CALL_SERVICE, null, [name, args], function (_, list) {
         client.sendResult(msgId, list);
       });
     });

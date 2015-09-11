@@ -15,9 +15,6 @@ describe('clouds-base', function () {
     var gate = base.createGate(address);
     var c1 = base.createClient(address);
     var c2 = base.createClient(address);
-    console.log(gate);
-    console.log(c1);
-    console.log(c2);
 
     c1.register('hello', function (msg, callback) {
       support.randomWait(function () {

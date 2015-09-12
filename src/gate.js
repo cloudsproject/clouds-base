@@ -29,6 +29,7 @@ function Gate (options) {
 
   Gate._counter++;
   this._debug = common.debug('gate:#' + Gate._counter);
+  this._exited = false;
 
   this._servicesTable = new ServiceTable();
 
@@ -43,6 +44,13 @@ Gate.prototype._listen = function () {
   var self = this;
 
   self._server = socket.createServer(self._options);
+
+  self._server.on('exit', function () {
+    self.emit('exit');
+  });
+  self._server.on('error', function (err) {
+    self.emit('err', err);
+  });
 
   self._server.on('connection', function (s) {
     var client = wrapSocket(s);
@@ -96,6 +104,23 @@ Gate.prototype._listen = function () {
     });
   });
 
+};
+
+Gate.prototype.exit = function (callback) {
+  var self = this;
+  if (self._exited) return callback && callback();
+  self.once('exit', function () {
+    delete self._servicesTable;
+    delete self._server;
+    delete self._packCallArguments;
+    delete self._unpackCallArguments;
+    delete self._options;
+    delete self._debug;
+    self._exited = true;
+  });
+  self.once('exit', callback);
+  self._server.exit();
+  self._server.exit();
 };
 
 

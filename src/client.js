@@ -30,6 +30,7 @@ function Client (options) {
 
   Client._counter++;
   self._debug = common.debug('client:#' + Client._counter);
+  self._exited = false;
 
   self._services = {};
 
@@ -125,9 +126,20 @@ Client.prototype.call = function (name, args, callback) {
 };
 
 Client.prototype.exit = function (callback) {
-  this.once('exit', callback);
-  this._socket.origin.exit();
-  this._socket.destroy();
+  var self = this;
+  if (self._exited) return callback && callback();
+  self.once('exit', function () {
+    delete self._services;
+    delete self._socket;
+    delete self._packCallArguments;
+    delete self._unpackCallArguments;
+    delete self._options;
+    delete self._debug;
+    self._exited = true;
+  });
+  self.once('exit', callback);
+  self._socket.origin.exit();
+  self._socket.destroy();
 };
 
 

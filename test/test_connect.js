@@ -76,6 +76,9 @@ describe('clouds-base', function () {
           next();
         });
       },
+      function (next) {
+        support.exit(c1, c2, gate, next);
+      },
     ], done);
   });
 
@@ -151,6 +154,9 @@ describe('clouds-base', function () {
           assert.equal(err.code, 'NO_AVAILABLE_WORKER');
           next();
         });
+      },
+      function (next) {
+        support.exit(c1, gate, next);
       },
     ], done);
   });
@@ -332,7 +338,10 @@ describe('clouds-base', function () {
           assert.equal(err.code, 'NO_AVAILABLE_WORKER');
           next();
         });
-      }
+      },
+      function (next) {
+        support.exit(c1, c2, c3, c4, c5, c6, c7, gate, next);
+      },
     ], done);
   });
 

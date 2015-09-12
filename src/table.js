@@ -37,7 +37,7 @@ ServiceTable.prototype.lookup = function (name) {
   if (this._counters[name] > 0) {
     this._counters[name]++;
   } else {
-    this._counters[name] = 0;
+    this._counters[name] = 1;
   }
   var i = this._counters[name] % this._services[name].length;
   return this._services[name][i];

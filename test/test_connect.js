@@ -147,4 +147,83 @@ describe('clouds-base', function () {
     ], done);
   });
 
+  it('register & call #multi worker', function (done) {
+    var address = support.getListenAddress();
+    var gate = base.createGate(address);
+    var c1 = base.createClient(address);
+    var c2 = base.createClient(address);
+    var c3 = base.createClient(address);
+    var c4 = base.createClient(address);
+    var c5 = base.createClient(address);
+
+    async.series([
+      function (next) {
+        c1.__counter = 0;
+        c1.register('exchange', function (a, b, callback) {
+          support.randomWait(function () {
+            c1.__counter++;
+            callback(null, b, a);
+          });
+        }, next);
+      },
+      function (next) {
+        c2.__counter = 0;
+        c2.register('exchange', function (a, b, callback) {
+          support.randomWait(function () {
+            c2.__counter++;
+            callback(null, b, a);
+          });
+        }, next);
+      },
+      function (next) {
+        c3.__counter = 0;
+        c3.register('exchange', function (a, b, callback) {
+          support.randomWait(function () {
+            c3.__counter++;
+            callback(null, b, a);
+          });
+        }, next);
+      },
+      function (next) {
+        c4.__counter = 0;
+        c4.register('exchange', function (a, b, callback) {
+          support.randomWait(function () {
+            c4.__counter++;
+            callback(null, b, a);
+          });
+        }, next);
+      },
+      function (next) {
+        c5.__counter = 0;
+        c5.register('exchange', function (a, b, callback) {
+          support.randomWait(function () {
+            c5.__counter++;
+            callback(null, b, a);
+          });
+        }, next);
+      },
+      function (next) {
+        async.times(100, function (i, next) {
+          var A = support.randomString(10);
+          var B = support.randomString(10);
+          c5.call('exchange', [A, B], function (err, a, b) {
+            assert.equal(err, null);
+            assert.equal(a, B);
+            assert.equal(b, A);
+            next();
+          });
+        }, next);
+      },
+      function (next) {
+        assert.equal(c1.__counter + c2.__counter + c3.__counter + c4.__counter + c5.__counter, 100);
+        assert.equal(c1.__counter, 20);
+        assert.equal(c2.__counter, 20);
+        assert.equal(c3.__counter, 20);
+        assert.equal(c4.__counter, 20);
+        assert.equal(c5.__counter, 20);
+        next();
+      }
+    ], done);
+  });
+
 });

@@ -136,3 +136,19 @@ exports.unpackCallArguments = function (data) {
   }
   return list;
 };
+
+exports.invalidCommandArgumentLengthError = function (len) {
+  var msg = 'invalid command argument length';
+  if (len > 0) msg += ', need ' + len;
+  var err = new Error(msg);
+  err.code = 'INVALID_COMMAND_ARGUMENT_LENGTH';
+  return err;
+};
+
+exports.noAvailableWorkerError = function (name) {
+  var msg = 'no available worker';
+  if (name) msg += ' for service `' + name + '`';
+  var err = new Error(msg);
+  err.code = 'NO_AVAILABLE_WORKER';
+  return err;
+};

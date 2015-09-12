@@ -58,7 +58,7 @@ Gate.prototype._listen = function () {
     // REGISTER_SERVICE
     client.handler.set(CMD.REGISTER_SERVICE, function (cmd, msgId, list) {
       if (list.length !== 1) {
-        client.sendResult(msgId, [self._packCallArguments(new Error('bad call request format'))]);
+        client.sendResult(msgId, [self._packCallArguments(common.invalidCommandArgumentLengthError(1))]);
         return;
       }
       var name = list[0].toString();
@@ -69,7 +69,7 @@ Gate.prototype._listen = function () {
     // UNREGISTER_SERVICE
     client.handler.set(CMD.UNREGISTER_SERVICE, function (cmd, msgId, list) {
       if (list.length !== 1) {
-        client.sendResult(msgId, [self._packCallArguments(new Error('bad call request format'))]);
+        client.sendResult(msgId, [self._packCallArguments(common.invalidCommandArgumentLengthError(1))]);
         return;
       }
       var name = list[0].toString();
@@ -80,14 +80,14 @@ Gate.prototype._listen = function () {
     // CALL_SERVICE
     client.handler.set(CMD.CALL_SERVICE, function (cmd, msgId, list) {
       if (list.length !== 2) {
-        client.sendResult(msgId, [self._packCallArguments(new Error('bad call request format'))]);
+        client.sendResult(msgId, [self._packCallArguments(common.invalidCommandArgumentLengthError(2))]);
         return;
       }
       var name = list[0].toString();
       var args = list[1];
       var worker = self._servicesTable.lookup(name);
       if (!worker) {
-        client.sendResult(msgId, [self._packCallArguments(new Error('no available worker'))]);
+        client.sendResult(msgId, [self._packCallArguments(common.noAvailableWorkerError(name))]);
         return;
       }
       worker.send(CMD.CALL_SERVICE, null, [name, args], function (_, list) {

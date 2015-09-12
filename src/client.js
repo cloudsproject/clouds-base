@@ -58,14 +58,14 @@ function Client (options) {
 
   self._socket.handler.set(CMD.CALL_SERVICE, function (cmd, msgId, list) {
     if (list.length !== 2) {
-      self._socket.sendResult(msgId, [self._packCallArguments(new Error('bad call request format'))]);
+      self._socket.sendResult(msgId, [self._packCallArguments(common.invalidCommandArgumentLengthError(2))]);
       return;
     }
     var name = list[0].toString();
     var args = self._unpackCallArguments(list[1]);
     var fn = self._services[name];
     if (!fn) {
-      self._socket.sendResult(msgId, [self._packCallArguments(new Error('no available service'))]);
+      self._socket.sendResult(msgId, [self._packCallArguments(common.invalidCommandArgumentLengthError(1))]);
       return;
     }
     args.push(function () {
@@ -111,6 +111,13 @@ Client.prototype.call = function (name, args, callback) {
   self._debug('call: name=%s, args=%s', name, args);
   var cb = callback ? function (msgId, list) {
     var args = self._unpackCallArguments(list[0]);
+    if (args[0]) {
+      var err = new Error(args[0].message);
+      for (var i in args[0]) {
+        err[i] = args[0][i];
+      }
+      args[0] = err;
+    }
     callback.apply(null, args);
   } : null;
   var data = self._packCallArguments.apply(null, args);

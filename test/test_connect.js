@@ -144,6 +144,14 @@ describe('clouds-base', function () {
           next();
         });
       },
+      function (next) {
+        c1.call('test2', [1234567, 'aaaaa'], function (err, a, b) {
+          support.dump(arguments);
+          assert.ok(err instanceof Error);
+          assert.equal(err.code, 'NO_AVAILABLE_WORKER');
+          next();
+        });
+      },
     ], done);
   });
 
@@ -309,6 +317,22 @@ describe('clouds-base', function () {
         c7.__counter = 0;
         next();
       },
+      //------------------------------------------------------------------------
+      function (next) {
+        c6.exit(next);
+      },
+      function (next) {
+        c7.exit(next);
+      },
+      function (next) {
+        var A = support.randomString(10);
+        var B = support.randomString(10);
+        c5.call('exchange', [A, B], function (err, a, b) {
+          assert.ok(err instanceof Error);
+          assert.equal(err.code, 'NO_AVAILABLE_WORKER');
+          next();
+        });
+      }
     ], done);
   });
 

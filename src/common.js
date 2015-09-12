@@ -70,17 +70,17 @@ exports.unpackDataList = function (buf) {
  */
 exports.pack = function (cmd, msgId, list) {
   var buf = exports.packDataList(list);
-  var newBuf = new Buffer(buf.length + 6);
-  newBuf.writeUInt16BE(cmd, 0);
-  newBuf.writeUInt32BE(msgId, 2);
-  buf.copy(newBuf, 6);
+  var newBuf = new Buffer(buf.length + 5);
+  newBuf.writeUInt8(cmd, 0);
+  newBuf.writeUInt32BE(msgId, 1);
+  buf.copy(newBuf, 5);
   return newBuf;
 };
 
 exports.unpack = function (buf) {
-  var cmd = buf.readUInt16BE(0);
-  var msgId = buf.readUInt32BE(2);
-  var newBuf = buf.slice(6);
+  var cmd = buf.readUInt8(0);
+  var msgId = buf.readUInt32BE(1);
+  var newBuf = buf.slice(5);
   var list = exports.unpackDataList(newBuf);
   return [cmd, msgId].concat(list);
 };

@@ -48,7 +48,7 @@ Gate.prototype._listen = function () {
     var client = wrapSocket(s);
     self._debug('new connection: %s', client.id);
 
-    client.on('exit', function () {
+    client.origin.on('exit', function () {
       self._servicesTable.unregisterAllByConnection(client);
       client.destroy();
       s = null;

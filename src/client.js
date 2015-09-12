@@ -103,7 +103,7 @@ Client.prototype.unregister = function (name, callback) {
     var args = self._unpackCallArguments(list[0]);
     callback.apply(null, args);
   } : null;
-  self._socket.send(CMD.REGISTER_SERVICE, null, [name], cb);
+  self._socket.send(CMD.UNREGISTER_SERVICE, null, [name], cb);
 };
 
 Client.prototype.call = function (name, args, callback) {
@@ -115,6 +115,12 @@ Client.prototype.call = function (name, args, callback) {
   } : null;
   var data = self._packCallArguments.apply(null, args);
   self._socket.send(CMD.CALL_SERVICE, null, [name, data], cb);
+};
+
+Client.prototype.exit = function (callback) {
+  this.once('exit', callback);
+  this._socket.origin.exit();
+  this._socket.destroy();
 };
 
 

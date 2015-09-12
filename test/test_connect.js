@@ -147,7 +147,7 @@ describe('clouds-base', function () {
     ], done);
   });
 
-  it('register & call #multi worker', function (done) {
+  it('register & unregister & call & exit #multi worker', function (done) {
     var address = support.getListenAddress();
     var gate = base.createGate(address);
     var c1 = base.createClient(address);
@@ -155,6 +155,8 @@ describe('clouds-base', function () {
     var c3 = base.createClient(address);
     var c4 = base.createClient(address);
     var c5 = base.createClient(address);
+    var c6 = base.createClient(address);
+    var c7 = base.createClient(address);
 
     async.series([
       function (next) {
@@ -221,8 +223,92 @@ describe('clouds-base', function () {
         assert.equal(c3.__counter, 20);
         assert.equal(c4.__counter, 20);
         assert.equal(c5.__counter, 20);
+        c1.__counter = 0;
+        c2.__counter = 0;
+        c3.__counter = 0;
+        c4.__counter = 0;
+        c5.__counter = 0;
         next();
-      }
+      },
+      //------------------------------------------------------------------------
+      function (next) {
+        c5.unregister('exchange', next);
+      },
+      function (next) {
+        async.times(100, function (i, next) {
+          var A = support.randomString(10);
+          var B = support.randomString(10);
+          c5.call('exchange', [A, B], function (err, a, b) {
+            assert.equal(err, null);
+            assert.equal(a, B);
+            assert.equal(b, A);
+            next();
+          });
+        }, next);
+      },
+      function (next) {
+        assert.equal(c1.__counter + c2.__counter + c3.__counter + c4.__counter, 100);
+        assert.equal(c1.__counter, 25);
+        assert.equal(c2.__counter, 25);
+        assert.equal(c3.__counter, 25);
+        assert.equal(c4.__counter, 25);
+        c1.__counter = 0;
+        c2.__counter = 0;
+        c3.__counter = 0;
+        c4.__counter = 0;
+        next();
+      },
+      //------------------------------------------------------------------------
+      function (next) {
+        c1.exit(next);
+      },
+      function (next) {
+        c2.exit(next);
+      },
+      function (next) {
+        c3.exit(next);
+      },
+      function (next) {
+        c4.exit(next);
+      },
+      function (next) {
+        c6.__counter = 0;
+        c6.register('exchange', function (a, b, callback) {
+          support.randomWait(function () {
+            c6.__counter++;
+            callback(null, b, a);
+          });
+        }, next);
+      },
+      function (next) {
+        c7.__counter = 0;
+        c7.register('exchange', function (a, b, callback) {
+          support.randomWait(function () {
+            c7.__counter++;
+            callback(null, b, a);
+          });
+        }, next);
+      },
+      function (next) {
+        async.times(100, function (i, next) {
+          var A = support.randomString(10);
+          var B = support.randomString(10);
+          c5.call('exchange', [A, B], function (err, a, b) {
+            assert.equal(err, null);
+            assert.equal(a, B);
+            assert.equal(b, A);
+            next();
+          });
+        }, next);
+      },
+      function (next) {
+        assert.equal(c6.__counter + c7.__counter, 100);
+        assert.equal(c6.__counter, 50);
+        assert.equal(c7.__counter, 50);
+        c6.__counter = 0;
+        c7.__counter = 0;
+        next();
+      },
     ], done);
   });
 

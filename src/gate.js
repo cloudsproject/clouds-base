@@ -32,6 +32,7 @@ function Gate (options) {
   this._exited = false;
 
   this._servicesTable = new ServiceTable();
+  this._clientCounter = 0;
 
   this._listen();
 }
@@ -45,18 +46,24 @@ Gate.prototype._listen = function () {
 
   self._server = socket.createServer(self._options);
 
+  self._server.on('listening', function () {
+    self.emit('listening');
+  });
   self._server.on('exit', function () {
     self.emit('exit');
   });
   self._server.on('error', function (err) {
-    self.emit('err', err);
+    self.emit('error', err);
   });
 
   self._server.on('connection', function (s) {
     var client = wrapSocket(s);
+    self._clientCounter++;
     self._debug('new connection: %s', client.id);
+    self.emit('connection', client);
 
     client.origin.on('exit', function () {
+      self._clientCounter--;
       self._servicesTable.unregisterAllByConnection(client);
       client.destroy();
       s = null;

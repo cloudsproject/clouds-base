@@ -20,6 +20,13 @@ function WrapSocket (socket) {
   self.id = common.uniqueId();
   self._debug = common.debug('socket:#' + self.id);
 
+  socket.once('exit', function () {
+    self.emit('exit');
+  });
+  socket.once('error', function (err) {
+    self.emit('error', err);
+  });
+
   socket.on('data', function (data) {
     var ret = common.unpack(data);
     var cmd = ret[0];

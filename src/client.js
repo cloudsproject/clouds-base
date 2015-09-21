@@ -127,7 +127,8 @@ Client.prototype.call = function (name, args, callback) {
 
 Client.prototype.exit = function (callback) {
   var self = this;
-  if (self._exited) return callback && callback();
+  callback = common.callback(callback);
+  if (self._exited) return callback();
   self.once('exit', function () {
     delete self._services;
     delete self._socket;

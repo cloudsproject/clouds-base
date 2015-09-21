@@ -115,7 +115,8 @@ Gate.prototype._listen = function () {
 
 Gate.prototype.exit = function (callback) {
   var self = this;
-  if (self._exited) return callback && callback();
+  callback = common.callback(callback);
+  if (self._exited) return callback();
   self.once('exit', function () {
     delete self._servicesTable;
     delete self._server;

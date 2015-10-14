@@ -106,7 +106,11 @@ Gate.prototype._listen = function () {
         return;
       }
       worker.send(CMD.CALL_SERVICE, null, [name, args], function (_, list) {
-        client.sendResult(msgId, list);
+        if (client) {
+          client.sendResult(msgId, list);
+        } else {
+          self._debug('service callback: name=%s, but client was exited', name);
+        }
       });
     });
   });
